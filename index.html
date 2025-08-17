@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Expense Splitter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      max-width: 520px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.9rem;
+      color: #ffe082;
+    }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.3s;
+    }
+    button:hover {
+      background: #e75b50;
+      transform: translateY(-2px);
+    }
+    .expense-list, .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .results b {
+      color: #ffd54f;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+    .footer a {
+      color: #ffd54f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💸 Daily Expense Splitter</h1>
+
+    <div class="input-group">
+      <input type="text" id="name" placeholder="Enter name (e.g., Aarav)">
+    </div>
+    <div class="input-group">
+      <input type="number" id="amount" placeholder="Enter amount paid (e.g., 500)">
+    </div>
+    <button onclick="addExpense()">➕ Add Expense</button>
+
+    <div class="expense-list" id="expenseList">No expenses added yet.</div>
+
+    <button style="margin-top:12px; background:#43cea2;" onclick="calculateSplit()">⚡ Split Expenses</button>
+
+    <div class="results" id="results"></div>
+
+    <div class="footer">Made with ❤️ | <a href="#">Upgrade to Pro</a></div>
+  </div>
+
+  <script>
+    let expenses = [];
+
+    function addExpense() {
+      let name = document.getElementById("name").value.trim();
+      let amount = parseFloat(document.getElementById("amount").value);
+      if (name && amount > 0) {
+        expenses.push({ name, amount });
+        displayExpenses();
+        document.getElementById("name").value = "";
+        document.getElementById("amount").value = "";
+      } else {
+        alert("⚠️ Please enter a valid name and amount");
+      }
+    }
+
+    function displayExpenses() {
+      let list = document.getElementById("expenseList");
+      list.innerHTML = "<b>Expenses:</b><br><br>" + expenses.map((e,i) => `${i+1}. ${e.name} paid ₹${e.amount}`).join("<br>");
+    }
+
+    function calculateSplit() {
+      if (expenses.length === 0) {
+        alert("⚠️ No expenses added!");
+        return;
+      }
+
+      let total = expenses.reduce((sum, e) => sum + e.amount, 0);
+      let perPerson = total / expenses.length;
+      let balances = {};
+
+      expenses.forEach(e => {
+        balances[e.name] = (balances[e.name] || 0) + (e.amount - perPerson);
+      });
+
+      let resultText = `<b>Total:</b> ₹${total.toFixed(2)} <br> <b>Each should pay:</b> ₹${perPerson.toFixed(2)} <br><br>`;
+
+      for (let name in balances) {
+        if (balances[name] > 0) {
+          resultText += `✅ ${name} should receive <b>₹${balances[name].toFixed(2)}</b><br>`;
+        } else if (balances[name] < 0) {
+          resultText += `💳 ${name} should pay <b>₹${(-balances[name]).toFixed(2)}</b><br>`;
+        } else {
+          resultText += `✔️ ${name} is settled.<br>`;
+        }
+      }
+
+      document.getElementById("results").innerHTML = resultText;
+    }
+  </script>
+</body>
+</html>
